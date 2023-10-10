@@ -1,6 +1,7 @@
 ﻿#include <iostream>
 
 #include "MainModel.h"
+#include "LppModel.h"
 
 using namespace std;
 
@@ -16,7 +17,7 @@ int main(int argc, char *argv[])
     arcSets.addArc(1, 3, 1, 10, 1.0, METRO_ARC);
     arcSets.addArc(3, 4, 1, 10, 1.0, METRO_ARC);
     arcSets.addArc(2, 3, 1, 10, 1.0, METRO_ARC);
-    arcSets.addArc(2, 5, 9, 18, 1.0, BUS_ARC);
+    arcSets.addArc(2, 5, 9, 1000, 1.0, BUS_ARC);
     arcSets.addArc(4, 5, 8, 1000, 1.0, BUS_ARC);
 
 
@@ -26,7 +27,7 @@ int main(int argc, char *argv[])
 
     // 配置各 line 经过的 arc
     lineSets.setLinePass(0, 4);
-    lineSets.setLinePass(1, 3);
+//    lineSets.setLinePass(1, 3);
     lineSets.setLinePass(2, arcSets.getArcId(1, 3));
     lineSets.setLinePass(2, 1);
     lineSets.setLinePass(3, 2);
@@ -80,8 +81,7 @@ int main(int argc, char *argv[])
     try{
         MainModel m = MainModel();
         m.addVars(lineSets, odSets);
-//        m.toCont();
-//        m.toInt();
+        m.toCont();
         m.setObjective(lineSets, odSets);
         m.addConstrs(arcSets, lineSets, odSets);
 
@@ -106,14 +106,14 @@ int main(int argc, char *argv[])
             }
         }
 
-        vector< vector<double> > vet = m.getDualX(arcSets);
+        vector< vector<double> > vet = m.getDualZ(arcSets, odSets, 1);
+        double phi3 = 0.725;
 
-        for (auto & i : vet){
-            for (double j : i){
-                cout << j << " ";
-            }
-            cout << endl;
-        }
+        LppModel lm = LppModel(vet, 5, 2, 5);
+        lm.setBias(phi3 * odSets.getDemand(1));
+        lm.buildModel();
+        lm.solve();
+        lm.printResult();
 
     } catch (GRBException &e) {
         cout << "Error code = " << e.getErrorCode() << endl;

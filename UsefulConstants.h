@@ -9,6 +9,7 @@
 #include<vector>
 
 typedef std::pair<int, int> odp;
+typedef std::pair<int, int> pii;
 
 #define MAX_OD_PAIRS 100
 #define MAX_PATH_NUM 5

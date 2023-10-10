@@ -8,17 +8,20 @@ void MainModel::addVars(LineSets &lineSets, ODSets &odSets) {
     try{
         for (int i : lineSets.getBusLines()){
             x[i] = model.addVar(0.0, GRB_INFINITY, 0.0, GRB_INTEGER, "x_" + to_string(i));
+            num_of_vars++;
         }
 
         for (int k : odSets.getOds()){
             for (int p = 0; p < odSets.getPathNums(k); ++p){
                 y[pii(k, p)] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY, "y_" + to_string(k) + "_" + to_string(p));
+                num_of_vars++;
             }
         }
 
         for (int k : odSets.getOds()){
             for (int l : lineSets.getLines()){
                 z[pii(k, l)] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY, "z_" + to_string(k) + "_" + to_string(l));
+                num_of_vars++;
             }
         }
 
@@ -95,6 +98,7 @@ void MainModel::addConstrs(ArcSets &arcSets, LineSets &lineSets, ODSets &odSets)
                 lhs += y[pii(k, p)];
             }
             model.addConstr(lhs == 1.0, "c2_" + to_string(k));
+            num_of_cons++;
         }
 
         // 约束组3，对偶rho
@@ -107,6 +111,7 @@ void MainModel::addConstrs(ArcSets &arcSets, LineSets &lineSets, ODSets &odSets)
                     }
                     lhs -= odSets.niu(k, p, e) * y[pii(k, p)];
                     model.addConstr(lhs >= 0.0, "c3_" + to_string(k) + "_" + to_string(p) + "_" + to_string(e));
+                    num_of_cons++;
                 }
             }
         }
@@ -115,6 +120,7 @@ void MainModel::addConstrs(ArcSets &arcSets, LineSets &lineSets, ODSets &odSets)
         for (int k : odSets.getOds()){
             for (int l : lineSets.getBusLines()){
                 model.addConstr(x[l] - z[pii(k, l)] >= 0.0, "c4_" + to_string(k) + "_" + to_string(l));
+                num_of_cons++;
             }
         }
 
@@ -130,6 +136,7 @@ void MainModel::addConstrs(ArcSets &arcSets, LineSets &lineSets, ODSets &odSets)
                 }
             }
             model.addConstr(lhs >= 0.0, "c5_" + to_string(e));
+            num_of_cons++;
         }
 
         // 约束组6，对偶ksi
@@ -139,7 +146,9 @@ void MainModel::addConstrs(ArcSets &arcSets, LineSets &lineSets, ODSets &odSets)
                 lhs += lineSets.miu(l, e) * x[l];
             }
             model.addConstr(lhs <= arcSets.getArcFreq(e), "c6_" + to_string(e));
+            num_of_cons++;
         }
+
     } catch (GRBException &e){
         cout << "Error code = " << e.getErrorCode() << endl;
         cout << e.getMessage() << endl;
@@ -152,7 +161,6 @@ void MainModel::addConstrs(ArcSets &arcSets, LineSets &lineSets, ODSets &odSets)
 vector<vector<double> > MainModel::getDualX(ArcSets &arcSets) {
     // TODO: 最大的节点数量，控制邻接矩阵大小
     const int MAX_NODE_NUM = 6;
-    const double INF = 1e10;
 
     vector<vector<double> > vet(MAX_NODE_NUM, vector<double>(MAX_NODE_NUM, -INF));
 
@@ -160,7 +168,30 @@ vector<vector<double> > MainModel::getDualX(ArcSets &arcSets) {
         double omega = model.getConstrByName("c5_" + to_string(e)).get(GRB_DoubleAttr_Pi);
         double ksi = model.getConstrByName("c6_" + to_string(e)).get(GRB_DoubleAttr_Pi);
         double dis = arcSets.getArcDis(e);
-        double weight = lambda * omega + ksi - alpha;
+
+        double weight = lambda * omega + ksi - alpha * dis;
+
+        int start = arcSets.getArcStart(e), end = arcSets.getArcEnd(e);
+        vet[start][end] = weight;
+        vet[end][start] = weight;
+    }
+
+    return vet;
+}
+
+vector<vector<double> > MainModel::getDualZ(ArcSets &arcSets, ODSets &odSets, int k) {
+    // TODO: 最大的节点数量，控制邻接矩阵大小
+    const int MAX_NODE_NUM = 6;
+
+    vector<vector<double> > vet(MAX_NODE_NUM, vector<double>(MAX_NODE_NUM, -INF));
+
+    for (int e : arcSets.getBusArcs()){
+        double weight = 0;
+
+        for(int p=0; p < odSets.getPathNums(k); ++p) {
+            double rho = model.getConstrByName("c3_" + to_string(k) + "_" + to_string(p) + "_" + to_string(e)).get(GRB_DoubleAttr_Pi);
+            weight += rho;
+        }
 
         int start = arcSets.getArcStart(e), end = arcSets.getArcEnd(e);
         vet[start][end] = weight;
