@@ -1,10 +1,6 @@
 ﻿#include <iostream>
 
 #include "MainModel.h"
-#include "gurobi_c++.h"
-#include "ArcSets.h"
-#include "LineSets.h"
-#include "ODSets.h"
 
 using namespace std;
 
@@ -84,135 +80,15 @@ int main(int argc, char *argv[])
     try{
         MainModel m = MainModel();
         m.addVars(lineSets, odSets);
-        m.toCont();
-        m.toInt();
+//        m.toCont();
+//        m.toInt();
         m.setObjective(lineSets, odSets);
         m.addConstrs(arcSets, lineSets, odSets);
 
-        m.model.optimize();
+        m.optimize();
 
-        GRBModel model = m.model;
         map<int, GRBVar> x = m.x;
         map<pii, GRBVar> y = m.y, z = m.z;
-
-
-/**
-
-        GRBEnv env = GRBEnv();
-        GRBModel model = GRBModel(env);
-
-
-//         创建变量
-        typedef pair<int, int> pii;
-        map<int, GRBVar> x;
-        map<pii, GRBVar> y, z;
-
-        for (int i : lineSets.getBusLines()){
-            x[i] = model.addVar(0.0, GRB_INFINITY, 0.0, GRB_INTEGER, "x_" + to_string(i));
-//            x[i] = model.addVar(0.0, GRB_INFINITY, 0.0, GRB_CONTINUOUS, "x_" + to_string(i));
-        }
-
-        for (int k : odSets.getOds()){
-            for (int p = 0; p < odSets.getPathNums(k); ++p){
-                y[pii(k, p)] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY, "y_" + to_string(k) + "_" + to_string(p));
-//                y[pii(k, p)] = model.addVar(0.0, 1.0, 0.0, GRB_CONTINUOUS, "y_" + to_string(k) + "_" + to_string(p));
-            }
-        }
-
-        for (int k : odSets.getOds()){
-            for (int l : lineSets.getLines()){
-                z[pii(k, l)] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY, "z_" + to_string(k) + "_" + to_string(l));
-//                z[pii(k, l)] = model.addVar(0.0, 1.0, 0.0, GRB_CONTINUOUS, "z_" + to_string(k) + "_" + to_string(l));
-            }
-        }
-
-
-        // 创建目标函数
-        double phi1=0.13, phi2=0.145, phi3=0.725;
-        GRBLinExpr obj = GRBLinExpr();
-        for (int i : lineSets.getBusLines()){
-            obj += phi1 * lineSets.cl[i] * x[i];
-        }
-        for (int k : odSets.getOds()){
-            for (int p = 0; p < odSets.getPathNums(k); ++p){
-                obj += phi2 * odSets.ckp[k][p] * odSets.getDemand(k) * y[pii(k, p)];
-            }
-        }
-        for (int k : odSets.getOds()){
-            for (int l : lineSets.getLines()){
-                obj += phi3 * odSets.getDemand(k) * z[pii(k, l)];
-            }
-        }
-        model.setObjective(obj, GRB_MINIMIZE);
-
-
-        // 约束组2
-        for (int k : odSets.getOds()){
-            GRBLinExpr lhs = GRBLinExpr();
-            for (int p = 0; p < odSets.getPathNums(k); ++p){
-                lhs += y[pii(k, p)];
-            }
-            model.addConstr(lhs == 1.0, "c2_" + to_string(k));
-        }
-
-
-        // 约束组3
-        for (int k : odSets.getOds()){
-            for (int p = 0; p < odSets.getPathNums(k); ++p){
-                for (int e : arcSets.getArcs()){
-                    GRBLinExpr lhs = GRBLinExpr();
-                    for (int l : lineSets.getLines()){
-                        lhs += lineSets.miu(l, e) * z[pii(k, l)];
-                    }
-                    lhs -= odSets.niu(k, p, e) * y[pii(k, p)];
-                    model.addConstr(lhs >= 0.0, "c3_" + to_string(k) + "_" + to_string(p) + "_" + to_string(e));
-                }
-            }
-        }
-
-
-        // 约束组4
-        for (int k : odSets.getOds()){
-            for (int l : lineSets.getBusLines()){
-                model.addConstr(x[l] - z[pii(k, l)] >= 0.0, "c4_" + to_string(k) + "_" + to_string(l));
-            }
-        }
-
-
-        // 约束组5
-        double lambda = 0.053;
-        for (int e : arcSets.getBusArcs()){
-            GRBLinExpr lhs = GRBLinExpr();
-            for (int l : lineSets.getBusLines()){
-                lhs += lambda * lineSets.miu(l, e) * x[l];
-            }
-            for (int k : odSets.getOds()){
-                for (int p = 0; p < odSets.getPathNums(k); ++p){
-                    lhs -= odSets.niu(k, p, e) * y[pii(k, p)];
-                }
-            }
-            model.addConstr(lhs >= 0.0, "c5_" + to_string(e));
-        }
-
-
-        // 约束组6
-        for (int e : arcSets.getBusArcs()){
-            GRBLinExpr lhs = GRBLinExpr();
-            for (int l : lineSets.getBusLines()){
-                lhs += lineSets.miu(l, e) * x[l];
-            }
-            model.addConstr(lhs <= arcSets.getArcFreq(e), "c6_" + to_string(e));
-        }
-
-
-       // MIP设置为0
-       model.set(GRB_DoubleParam_MIPGap, 0);
-       // 设置时间限制
-       model.set(GRB_DoubleParam_TimeLimit, 3600);
-
-       model.optimize();
-
-**/
 
         // 输出结果
         cout << "Obj: " << m.model.get(GRB_DoubleAttr_ObjVal) << endl;
@@ -230,9 +106,14 @@ int main(int argc, char *argv[])
             }
         }
 
-//        model.write("model.lp");
+        vector< vector<double> > vet = m.getDualX(arcSets);
 
-
+        for (auto & i : vet){
+            for (double j : i){
+                cout << j << " ";
+            }
+            cout << endl;
+        }
 
     } catch (GRBException &e) {
         cout << "Error code = " << e.getErrorCode() << endl;

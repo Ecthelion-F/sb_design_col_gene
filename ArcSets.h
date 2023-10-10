@@ -29,6 +29,8 @@ public:
     int addArc(int start, int end, int dis, int freq, double v, bool type);
     std::vector<int> getArcs();
     std::vector<int> getBusArcs();
+    int getArcStart(int id) {return arcs[id].start;}
+    int getArcEnd(int id) {return arcs[id].end;}
     int getArcDis(int id);
     int getArcId(int start, int end);
     double getVelocity(int id);

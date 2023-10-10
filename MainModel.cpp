@@ -88,7 +88,7 @@ void MainModel::setObjective(LineSets &lineSets, ODSets &odSets) {
 
 void MainModel::addConstrs(ArcSets &arcSets, LineSets &lineSets, ODSets &odSets) {
     try{
-        // 约束组2
+        // 约束组2，对偶eta
         for (int k : odSets.getOds()){
             GRBLinExpr lhs = GRBLinExpr();
             for (int p = 0; p < odSets.getPathNums(k); ++p){
@@ -97,7 +97,7 @@ void MainModel::addConstrs(ArcSets &arcSets, LineSets &lineSets, ODSets &odSets)
             model.addConstr(lhs == 1.0, "c2_" + to_string(k));
         }
 
-        // 约束组3
+        // 约束组3，对偶rho
         for (int k : odSets.getOds()){
             for (int p = 0; p < odSets.getPathNums(k); ++p){
                 for (int e : arcSets.getArcs()){
@@ -111,14 +111,14 @@ void MainModel::addConstrs(ArcSets &arcSets, LineSets &lineSets, ODSets &odSets)
             }
         }
 
-        // 约束组4
+        // 约束组4，对偶pi
         for (int k : odSets.getOds()){
             for (int l : lineSets.getBusLines()){
                 model.addConstr(x[l] - z[pii(k, l)] >= 0.0, "c4_" + to_string(k) + "_" + to_string(l));
             }
         }
 
-        // 约束组5
+        // 约束组5，对偶omega
         for (int e : arcSets.getBusArcs()){
             GRBLinExpr lhs = GRBLinExpr();
             for (int l : lineSets.getBusLines()){
@@ -132,7 +132,7 @@ void MainModel::addConstrs(ArcSets &arcSets, LineSets &lineSets, ODSets &odSets)
             model.addConstr(lhs >= 0.0, "c5_" + to_string(e));
         }
 
-        // 约束组6
+        // 约束组6，对偶ksi
         for (int e : arcSets.getBusArcs()){
             GRBLinExpr lhs = GRBLinExpr();
             for (int l : lineSets.getBusLines()){
@@ -147,4 +147,25 @@ void MainModel::addConstrs(ArcSets &arcSets, LineSets &lineSets, ODSets &odSets)
         cout << "Exception during optimization" << endl;
     }
 
+}
+
+vector<vector<double> > MainModel::getDualX(ArcSets &arcSets) {
+    // TODO: 最大的节点数量，控制邻接矩阵大小
+    const int MAX_NODE_NUM = 6;
+    const double INF = 1e10;
+
+    vector<vector<double> > vet(MAX_NODE_NUM, vector<double>(MAX_NODE_NUM, -INF));
+
+    for(int e : arcSets.getBusArcs()){
+        double omega = model.getConstrByName("c5_" + to_string(e)).get(GRB_DoubleAttr_Pi);
+        double ksi = model.getConstrByName("c6_" + to_string(e)).get(GRB_DoubleAttr_Pi);
+        double dis = arcSets.getArcDis(e);
+        double weight = lambda * omega + ksi - alpha;
+
+        int start = arcSets.getArcStart(e), end = arcSets.getArcEnd(e);
+        vet[start][end] = weight;
+        vet[end][start] = weight;
+    }
+
+    return vet;
 }
