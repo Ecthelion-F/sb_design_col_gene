@@ -54,10 +54,9 @@ int main(int argc, char *argv[])
 
 
     // 计算c_l
-    const double ALPHA = 90.0;
     for (int i: lineSets.getLines()) {
         for (int j: arcSets.getBusArcs()) {
-            lineSets.cl[i] += ALPHA * (double) lineSets.miu(i, j) * (double) arcSets.getArcDis(j);
+            lineSets.cl[i] += alpha * (double) lineSets.miu(i, j) * (double) arcSets.getArcDis(j);
         }
     }
 
@@ -81,13 +80,13 @@ int main(int argc, char *argv[])
 
         bool flag = true;
 
-        while (flag){
+        while (true){
             // 造RMP
             MainModel m = MainModel();
             m.addVars(lineSets, odSets);
             m.toCont();  // 需要对偶的时候用松弛模型
             m.setObjective(lineSets, odSets);
-            m.addConstrs(arcSets, lineSets, odSets);
+            m.addConstrains(arcSets, lineSets, odSets);
             m.model.set(GRB_IntParam_OutputFlag, 0);
             m.optimize();
             cout << "------------------------fuckme---------------" << endl << endl;
@@ -124,9 +123,8 @@ int main(int argc, char *argv[])
             }
 
             // 补算c_l
-            const double ALPHA = 90.0;
             for (int j: arcSets.getBusArcs()) {
-                lineSets.cl[new_line_id] += ALPHA * (double) lineSets.miu(new_line_id, j) * (double) arcSets.getArcDis(j);
+                lineSets.cl[new_line_id] += alpha * (double) lineSets.miu(new_line_id, j) * (double) arcSets.getArcDis(j);
             }
         }
 
@@ -134,14 +132,13 @@ int main(int argc, char *argv[])
 
         // z_k,l部分的列生成
         flag = true;
-        double phi3 = 0.725; // TODO: 想个办法把这些常数集成一下
-        while (flag){
+        while (true){
             // 造RMP
             MainModel m = MainModel();
             m.addVars(lineSets, odSets);
             m.toCont();  // 需要对偶的时候用松弛模型
             m.setObjective(lineSets, odSets);
-            m.addConstrs(arcSets, lineSets, odSets);
+            m.addConstrains(arcSets, lineSets, odSets);
             m.model.set(GRB_IntParam_OutputFlag, 0);
             m.optimize();
 
@@ -178,23 +175,17 @@ int main(int argc, char *argv[])
             for (auto iter : new_line){
                 lineSets.setLinePass(new_line_id, arcSets.getArcId(iter.first, iter.second));
             }
-
             // 补算c_l
-            const double ALPHA = 90.0;
             for (int j: arcSets.getBusArcs()) {
-                lineSets.cl[new_line_id] += ALPHA * (double) lineSets.miu(new_line_id, j) * (double) arcSets.getArcDis(j);
+                lineSets.cl[new_line_id] += alpha * (double) lineSets.miu(new_line_id, j) * (double) arcSets.getArcDis(j);
             }
         }
 
         MainModel m = MainModel();
         m.addVars(lineSets, odSets);
-//        m.toCont();  // 需要对偶的时候用松弛模型
         m.setObjective(lineSets, odSets);
-        m.addConstrs(arcSets, lineSets, odSets);
-//        m.model.set(GRB_IntParam_OutputFlag, 0);
+        m.addConstrains(arcSets, lineSets, odSets);
         m.optimize();
-
-        m.model.write("fuckme.lp");
 
         m.printResult(lineSets, odSets);
 

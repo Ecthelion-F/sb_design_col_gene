@@ -89,7 +89,7 @@ void MainModel::setObjective(LineSets &lineSets, ODSets &odSets) {
 }
 
 
-void MainModel::addConstrs(ArcSets &arcSets, LineSets &lineSets, ODSets &odSets) {
+void MainModel::addConstrains(ArcSets &arcSets, LineSets &lineSets, ODSets &odSets) {
     try{
         // 约束组2，对偶eta
         for (int k : odSets.getOds()){
@@ -159,7 +159,7 @@ void MainModel::addConstrs(ArcSets &arcSets, LineSets &lineSets, ODSets &odSets)
 }
 
 vector<vector<double> > MainModel::getDualX(ArcSets &arcSets) {
-    // TODO: 最大的节点数量，控制邻接矩阵大小
+    // 最大的节点数量，控制邻接矩阵大小
     const int MAX_NODE_NUM = arcSets.max_id - arcSets.min_id + 1;
 
     vector<vector<double> > vet(MAX_NODE_NUM, vector<double>(MAX_NODE_NUM, -INF));
@@ -180,7 +180,7 @@ vector<vector<double> > MainModel::getDualX(ArcSets &arcSets) {
 }
 
 vector<vector<double> > MainModel::getDualZ(ArcSets &arcSets, ODSets &odSets, int k) {
-    // TODO: 最大的节点数量，控制邻接矩阵大小
+    // 最大的节点数量，控制邻接矩阵大小
     const int MAX_NODE_NUM = arcSets.max_id - arcSets.min_id + 1;
 
     vector<vector<double> > vet(MAX_NODE_NUM, vector<double>(MAX_NODE_NUM, -INF));
