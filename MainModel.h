@@ -15,12 +15,13 @@ using std::to_string, std::cout, std::endl;
 using std::vector;
 using std::pair, std::map;
 
+const int INF = 1.1e9;
+
 class MainModel {
 private:
     double phi1 = 0.13, phi2 = 0.145, phi3 = 0.725;
-    double lambda = 0.053;
+    double lambda = 10;
     double alpha = 90.0;
-    const double INF = 1.1e10;
 public:
     int num_of_vars=0, num_of_cons=0;
     std::map<int, GRBVar> x;
@@ -38,6 +39,8 @@ public:
     void toInt();
     void toCont();
     void optimize(){model.optimize();};
+
+    void printResult(LineSets &lineSets, ODSets &odSets);
 
 
 };

@@ -11,18 +11,16 @@ void LppModel::buildModel() {
     buildConstrains();
 }
 
-LppModel::LppModel(vector<vector<double>> &c, int max_length, int ori, int des) {
+LppModel::LppModel(vector<vector<double>> &c, int max_length) {
     c_ij = c;
     MAX_LENGTH = max_length;
-    ORIGIN = ori;
-    DESTINATION = des;
     NUM_OF_NODES = (int)c_ij.size();
 }
 
 void LppModel::buildVars() {
     try{
         for (int i = 0; i < NUM_OF_NODES; ++i){
-            u[i] = model.addVar(0.0, 1.0, 0.0, GRB_CONTINUOUS, "u_" + to_string(i));
+            u[i] = model.addVar(0.0, 1e10, 0.0, GRB_CONTINUOUS, "u_" + to_string(i)); // ui>=0
             num_of_vars++;
             for (int j = 0; j < NUM_OF_NODES; ++j){
                 if (i != j){
@@ -122,6 +120,8 @@ void LppModel::clear() {
     GRBConstr* cons = model.getConstrs();
     for (int i = 0; i < num_of_vars; ++i) model.remove(vars[i]);
     for (int i = 0; i < num_of_cons; ++i) model.remove(cons[i]);
+    num_of_vars = 0;
+    num_of_cons = 0;
     model.update();
 }
 
@@ -136,8 +136,28 @@ void LppModel::printResult() {
 }
 
 
-void LppModel::solve() {
+double LppModel::solve() {
     model.set(GRB_IntParam_OutputFlag, 0);
     model.optimize();
-    model.write("lpp.lp");
+    return model.get(GRB_DoubleAttr_ObjVal);
+}
+
+
+void LppModel::setOrigin(int origin) {
+    ORIGIN = origin;
+}
+
+
+void LppModel::setDestination(int destination) {
+    DESTINATION = destination;
+}
+
+vector<odp> LppModel::getResult() {
+    vector<odp> res;
+    for (auto iter = x.begin(); iter != x.end(); ++iter){
+        if (iter->second.get(GRB_DoubleAttr_X) > 0){
+            res.emplace_back(iter->first.first, iter->first.second);
+        }
+    }
+    return res;
 }

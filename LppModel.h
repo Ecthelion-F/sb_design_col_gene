@@ -17,7 +17,13 @@ using std::vector, std::map;
 
 class LppModel {
 private:
-    int NUM_OF_NODES, MAX_LENGTH, ORIGIN, DESTINATION;
+    int NUM_OF_NODES, MAX_LENGTH, ORIGIN = -1, DESTINATION = -1;
+public:
+    void setOrigin(int origin);
+
+    void setDestination(int destination);
+
+private:
 
     double bias = 0;
 
@@ -33,12 +39,14 @@ public:
     map<pii, GRBVar> x;
     int num_of_vars=0, num_of_cons=0;
 
-    LppModel(vector< vector<double> > &c, int max_length, int ori, int des);
+    LppModel(vector< vector<double> > &c, int max_length);
 
     void setBias(double b){bias = b;};
     void clear();
     void buildModel();
-    void solve();
+    double solve();
+
+    vector<odp> getResult();
 
     void printResult();
 };

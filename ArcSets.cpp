@@ -11,6 +11,10 @@ int ArcSets::addArc(int start, int end, int dis, int freq, double v, bool type) 
     if (BUS_ARC == type) bus_arcs_id.push_back(e.id);
     all_arcs_id.push_back(e.id);
     odp_to_arc_id[odp(start, end)] = e.id;
+
+    if (min_id > start || min_id > end) min_id = start < end ? start : end;
+    if (max_id < start || max_id < end) max_id = start > end ? start : end;
+
     return e.id;
 }
 

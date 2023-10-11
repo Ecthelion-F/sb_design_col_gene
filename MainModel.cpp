@@ -132,7 +132,7 @@ void MainModel::addConstrs(ArcSets &arcSets, LineSets &lineSets, ODSets &odSets)
             }
             for (int k : odSets.getOds()){
                 for (int p = 0; p < odSets.getPathNums(k); ++p){
-                    lhs -= odSets.niu(k, p, e) * y[pii(k, p)];
+                    lhs -= odSets.niu(k, p, e) * y[pii(k, p)] * odSets.getDemand(k);
                 }
             }
             model.addConstr(lhs >= 0.0, "c5_" + to_string(e));
@@ -160,7 +160,7 @@ void MainModel::addConstrs(ArcSets &arcSets, LineSets &lineSets, ODSets &odSets)
 
 vector<vector<double> > MainModel::getDualX(ArcSets &arcSets) {
     // TODO: 最大的节点数量，控制邻接矩阵大小
-    const int MAX_NODE_NUM = 6;
+    const int MAX_NODE_NUM = arcSets.max_id - arcSets.min_id + 1;
 
     vector<vector<double> > vet(MAX_NODE_NUM, vector<double>(MAX_NODE_NUM, -INF));
 
@@ -173,7 +173,7 @@ vector<vector<double> > MainModel::getDualX(ArcSets &arcSets) {
 
         int start = arcSets.getArcStart(e), end = arcSets.getArcEnd(e);
         vet[start][end] = weight;
-        vet[end][start] = weight;
+//        vet[end][start] = weight;
     }
 
     return vet;
@@ -181,7 +181,7 @@ vector<vector<double> > MainModel::getDualX(ArcSets &arcSets) {
 
 vector<vector<double> > MainModel::getDualZ(ArcSets &arcSets, ODSets &odSets, int k) {
     // TODO: 最大的节点数量，控制邻接矩阵大小
-    const int MAX_NODE_NUM = 6;
+    const int MAX_NODE_NUM = arcSets.max_id - arcSets.min_id + 1;
 
     vector<vector<double> > vet(MAX_NODE_NUM, vector<double>(MAX_NODE_NUM, -INF));
 
@@ -195,8 +195,26 @@ vector<vector<double> > MainModel::getDualZ(ArcSets &arcSets, ODSets &odSets, in
 
         int start = arcSets.getArcStart(e), end = arcSets.getArcEnd(e);
         vet[start][end] = weight;
-        vet[end][start] = weight;
+//        vet[end][start] = weight;
     }
 
     return vet;
+}
+
+void MainModel::printResult(LineSets &lineSets, ODSets &odSets) {
+    cout << "Obj: " << model.get(GRB_DoubleAttr_ObjVal) << endl;
+    for (int i : lineSets.getBusLines()){
+        cout << "x_" << i << " = " << x[i].get(GRB_DoubleAttr_X) << endl;
+    }
+    for (int k : odSets.getOds()){
+        for (int p = 0; p < odSets.getPathNums(k); ++p){
+            cout << "y_" << k << "_" << p << " = " << y[pii(k, p)].get(GRB_DoubleAttr_X) << endl;
+        }
+    }
+    for (int k : odSets.getOds()){
+        for (int l : lineSets.getLines()){
+            cout << "z_" << k << "_" << l << " = " << z[pii(k, l)].get(GRB_DoubleAttr_X) << endl;
+        }
+    }
+
 }

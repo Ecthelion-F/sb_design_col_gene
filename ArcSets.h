@@ -24,8 +24,10 @@ private:
     std::vector<int> bus_arcs_id;
     std::vector<Arc> arcs;
     std::map<odp, int> odp_to_arc_id;
+    const int INF = 1e9;
 
 public:
+    int min_id = INF, max_id = -INF;
     int addArc(int start, int end, int dis, int freq, double v, bool type);
     std::vector<int> getArcs();
     std::vector<int> getBusArcs();
