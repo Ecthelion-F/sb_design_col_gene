@@ -6,6 +6,7 @@
 #define GUROBI_DEMO_LINESETS_H
 
 #include "UsefulConstants.h"
+#include "ArcSets.h"
 
 class LineSets {
 private:
@@ -25,6 +26,8 @@ public:
 
     std::vector<int> getLines();
     std::vector<int> getBusLines();
+
+    void readLinesFromFile(const std::string& filename, ArcSets& arcSets);
 };
 
 

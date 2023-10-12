@@ -1,6 +1,4 @@
-﻿#include <iostream>
-
-#include "MainModel.h"
+﻿#include "MainModel.h"
 #include "LppModel.h"
 
 using namespace std;
@@ -14,13 +12,16 @@ int main(int argc, char *argv[])
     /*-------------------------------------------模型需要的各种参数------------------------------------------------------*/
 {
     // 把 arc 加进去
+    /*
     arcSets.addArc(0, 2, 1, 10, 1.0, METRO_ARC);
     arcSets.addArc(2, 3, 1, 10, 1.0, METRO_ARC);
     arcSets.addArc(1, 2, 1, 10, 1.0, METRO_ARC);
     arcSets.addArc(1, 4, 8, 50, 1.0, BUS_ARC);
     arcSets.addArc(3, 4, 9, 50, 1.0, BUS_ARC);
+    */
+    arcSets.readArcsFromFile("arcSetsSetting.in");
 
-
+/*
     // 加入空的 line
     for (int i = 0; i < 1; ++i) lineSets.addLine(BUS_LINE);
     for (int i = 0; i < 2; ++i) lineSets.addLine(METRO_LINE);
@@ -28,12 +29,14 @@ int main(int argc, char *argv[])
     // 配置各 line 经过的 arc
     lineSets.setLinePass(0, 4);
 //    lineSets.setLinePass(1, 3);
-    lineSets.setLinePass(1, arcSets.getArcId(1, 3));
+    lineSets.setLinePass(1, arcSets.getArcId(0, 2));
     lineSets.setLinePass(1, 1);
     lineSets.setLinePass(2, 2);
     lineSets.setLinePass(2, 1);
+*/
+    lineSets.readLinesFromFile("lineSetsSetting.in", arcSets);
 
-
+/*
     // 加入 OD
     odSets.addOdPair(0, 4, 127);
     odSets.addOdPair(1, 4, 319);
@@ -51,6 +54,8 @@ int main(int argc, char *argv[])
     odSets.letPathPassArc(1, 0, arcSets.getArcId(2, 3));
     odSets.letPathPassArc(1, 0, arcSets.getArcId(3, 4));
     odSets.letPathPassArc(1, 1, arcSets.getArcId(1, 4));
+*/
+    odSets.readOdsFromFile("odSetsSetting.in", arcSets);
 
 
     // 计算c_l

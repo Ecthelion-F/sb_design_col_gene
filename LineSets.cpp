@@ -35,3 +35,26 @@ LineSets::LineSets(){
     memset(line_pass_arc, false, sizeof(line_pass_arc));
 }
 
+void LineSets::readLinesFromFile(const std::string &filename, ArcSets &arcSets) {
+    std::ifstream fin;
+    fin.open(filename);
+    if (!fin){
+        std::cout << "Error opening file" << std::endl;
+        exit(1);
+    }
+
+    int n;
+    fin >> n;
+    for (int i = 0; i < n; ++i){
+        int type, line_id, num_of_arcs;
+        fin >> type >> num_of_arcs;
+        line_id = addLine(type);
+
+        for (int j  = 0; j < num_of_arcs; ++j){
+            int start, end;
+            fin >> start >> end;
+            setLinePass(line_id, arcSets.getArcId(start, end));
+        }
+    }
+}
+

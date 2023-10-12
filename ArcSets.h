@@ -7,7 +7,6 @@
 
 #include "UsefulConstants.h"
 
-
 class Arc{
 public:
     int id;
@@ -37,6 +36,8 @@ public:
     int getArcId(int start, int end);
     double getVelocity(int id);
     int getArcFreq(int id);
+
+    void readArcsFromFile(const std::string& filename);
 };
 
 

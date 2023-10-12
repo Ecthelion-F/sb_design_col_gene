@@ -6,6 +6,7 @@
 #define GUROBI_DEMO_ODSETS_H
 
 #include "UsefulConstants.h"
+#include "ArcSets.h"
 
 
 class ODSets {
@@ -30,6 +31,8 @@ public:
     int getDemand(int od_id);
 
     bool niu(int od_id, int path_id, int arc_id);
+
+    void readOdsFromFile(const std::string& filename, ArcSets& arcSets);
 };
 
 

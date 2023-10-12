@@ -5,8 +5,11 @@
 #ifndef GUROBI_DEMO_USEFULCONSTANTS_H
 #define GUROBI_DEMO_USEFULCONSTANTS_H
 
+#include<iostream>
+#include<fstream>
 #include<map>
 #include<vector>
+#include <string>
 
 typedef std::pair<int, int> odp;
 typedef std::pair<int, int> pii;

@@ -42,6 +42,28 @@ int ArcSets::getArcFreq(int id) {
     return arcs[id].max_freq;
 }
 
+void ArcSets::readArcsFromFile(const std::string& filename) {
+    std::ifstream fin;
+    int n;
+
+    fin.open(filename);
+    if(!fin.is_open()) {
+        std::cout << "Error opening file" << std::endl;
+        exit(1);
+    }
+
+    fin >> n;
+
+    for (int i = 0; i < n; ++i){
+        int start, end, dis, freq, type;
+        double v;
+        fin >> start >> end >> dis >> freq >> v >> type;
+        addArc(start, end, dis, freq, v, type == 0 ? METRO_ARC : BUS_ARC);
+    }
+
+    std::cout << "[INFO] ArcSets: " << n << " arcs read from file " << filename << std::endl;
+}
+
 Arc::Arc(int id, int start, int end, int dis, int max_freq, double v, bool type) {
     this->id = id;
     this->start = start;
