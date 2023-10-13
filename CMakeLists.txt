@@ -15,3 +15,4 @@ link_directories(${GUROBI_LIB_DIR})
 include_directories(${GUROBI_INCLUDE_DIR})
 
 target_link_libraries(${PROJECT_NAME} "${GUROBI_LIB_DIR}\\gurobi100.lib" "${GUROBI_LIB_DIR}\\gurobi_c++mdd2017.lib")
+add_executable(KSP KSP/ksp.cpp)
