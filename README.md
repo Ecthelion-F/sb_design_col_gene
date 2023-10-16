@@ -4,6 +4,7 @@ Code for shuttle bus service design and passenger flow assignment under UTR disr
 [DOI: 10.1016/j.trc.2023.104098](https://doi.org/10.1016/j.trc.2023.104098)
 
 ## 输入输出配置约定
+**各个文件之间使用的结点编号要统一**
 
 ### Arc 配置文件
 + 读取接口：`Arcsets::readArcsFromFile(const string& Filename)`
