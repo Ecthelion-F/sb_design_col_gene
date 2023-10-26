@@ -46,8 +46,8 @@ int main(){
     int n, path_num, MAX_NODE_ID = 0; // 边总数，最大节点编号
     fin >> n;
     for(int i = 0; i < n; ++i){
-        int start, end, dis, max_freq, type;
-        double velocity;
+        int start, end, max_freq, type;
+        double dis, velocity;
         fin >> start >> end >> dis >> max_freq >> velocity >> type;
         map[start].emplace_back(end, dis / velocity);
 
@@ -56,7 +56,7 @@ int main(){
     }
     fin.close();
 
-    ofstream out("odSetSetting.out");
+    ofstream out("odSetsSetting.out");
     fin.open("odLists.in");
     fin >> n >> path_num;
     out << n << endl;

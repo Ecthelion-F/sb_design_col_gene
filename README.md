@@ -9,9 +9,10 @@ Code for shuttle bus service design and passenger flow assignment under UTR disr
 ### Arc 配置文件
 + 读取接口：`Arcsets::readArcsFromFile(const string& Filename)`
 + 首行为一个整数 n，表示弧段总数
-+ 接下来 n 行每行包含 6 个空格分割的输入，用于描述一个弧段，类型为`<int> <int> <int> <int> <double> <binary>`，表示弧段起点、终点、长度、最大运营频率、速度、弧段类型（0为地铁弧段、1为公交弧段）
-+ 注意起点与终点**必须从 0 开始连续编号**
-+ 同一 S-T 对要么是地铁弧要么是公交弧，不会同时存在
++ 接下来 n 行每行包含 6 个空格分割的输入，用于描述一个弧段，类型为`<int> <int> <double> <int> <double> <binary>`，表示弧段起点、终点、长度、最大运营频率、速度、弧段类型（0为地铁弧段、1为公交弧段）
+  + 注意起点与终点**必须从 0 开始连续编号**（因为`MainModel::getDualX()`里面算节点数量用了大-小+1）
++ ~~同一 S-T 对要么是地铁弧要么是公交弧，不会同时存在?~~
++ 这里大约有个BUG，原文好像是可以同时存在的，但是现在的代码里同时存在的话k短路还有`ArcSets::getArcId()`好像全都得大改......
 
 ### Line 配置文件
 + 读取接口：`Linesets::readLinesFromFile(const string& Filename, Arcsets& Arcs)`

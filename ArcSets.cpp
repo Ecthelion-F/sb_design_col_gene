@@ -5,7 +5,7 @@
 #include "ArcSets.h"
 
 
-int ArcSets::addArc(int start, int end, int dis, int freq, double v, bool type) {
+int ArcSets::addArc(int start, int end, double dis, int freq, double v, bool type) {
     Arc e = Arc(num++, start, end, dis, freq, v, type);
     arcs.push_back(e);
     if (BUS_ARC == type) bus_arcs_id.push_back(e.id);
@@ -26,7 +26,7 @@ std::vector<int> ArcSets::getBusArcs() {
     return bus_arcs_id;
 }
 
-int ArcSets::getArcDis(int id) {
+double ArcSets::getArcDis(int id) {
     return arcs[id].dis;
 }
 
@@ -55,8 +55,8 @@ void ArcSets::readArcsFromFile(const std::string& filename) {
     fin >> n;
 
     for (int i = 0; i < n; ++i){
-        int start, end, dis, freq, type;
-        double v;
+        int start, end, freq, type;
+        double dis, v;
         fin >> start >> end >> dis >> freq >> v >> type;
         addArc(start, end, dis, freq, v, type == 0 ? METRO_ARC : BUS_ARC);
     }
@@ -64,7 +64,7 @@ void ArcSets::readArcsFromFile(const std::string& filename) {
     std::cout << "[INFO] ArcSets: " << n << " arcs read from file " << filename << std::endl;
 }
 
-Arc::Arc(int id, int start, int end, int dis, int max_freq, double v, bool type) {
+Arc::Arc(int id, int start, int end, double dis, int max_freq, double v, bool type) {
     this->id = id;
     this->start = start;
     this->end = end;

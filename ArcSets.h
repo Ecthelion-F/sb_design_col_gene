@@ -10,10 +10,10 @@
 class Arc{
 public:
     int id;
-    int start, end, dis, max_freq;
-    double velocity;
+    int start, end, max_freq;
+    double dis, velocity;
     bool type; // 0 for metro arc, 1 for bus arc
-    Arc(int id, int start, int end, int dis, int max_freq, double v, bool type);
+    Arc(int id, int start, int end, double dis, int max_freq, double v, bool type);
 };
 
 class ArcSets {
@@ -27,12 +27,12 @@ private:
 
 public:
     int min_id = INF, max_id = -INF;
-    int addArc(int start, int end, int dis, int freq, double v, bool type);
+    int addArc(int start, int end, double dis, int freq, double v, bool type);
     std::vector<int> getArcs();
     std::vector<int> getBusArcs();
     int getArcStart(int id) {return arcs[id].start;}
     int getArcEnd(int id) {return arcs[id].end;}
-    int getArcDis(int id);
+    double getArcDis(int id);
     int getArcId(int start, int end);
     double getVelocity(int id);
     int getArcFreq(int id);

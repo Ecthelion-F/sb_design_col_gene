@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
     odSets.letPathPassArc(1, 0, arcSets.getArcId(3, 4));
     odSets.letPathPassArc(1, 1, arcSets.getArcId(1, 4));
 */
-    odSets.readOdsFromFile("odSetsSetting.in", arcSets);
+    odSets.readOdsFromFile("odSetsSetting.out", arcSets);
 
 
     // 计算c_l
@@ -94,8 +94,8 @@ int main(int argc, char *argv[])
             m.addConstrains(arcSets, lineSets, odSets);
             m.model.set(GRB_IntParam_OutputFlag, 0);
             m.optimize();
-            cout << "------------------------fuckme---------------" << endl << endl;
             vector< vector<double> > vet = m.getDualX(arcSets);
+            cout << "------------------------fuckme---------------" << endl << endl;
             vector<odp> new_line;
             int num_of_nodes = (int)vet.size();
             double ans = -INF;
@@ -115,6 +115,7 @@ int main(int argc, char *argv[])
                         ans = tmp;
                         new_line = lm.getResult();
                         flag = true;
+                        lm.printResult();
                     }
                 }
             }
@@ -136,7 +137,6 @@ int main(int argc, char *argv[])
         cout << "--------------------fuckme--------------------\n";
 
         // z_k,l部分的列生成
-        flag = true;
         while (true){
             // 造RMP
             MainModel m = MainModel();
