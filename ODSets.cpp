@@ -72,4 +72,6 @@ void ODSets::readOdsFromFile(const std::string &filename, ArcSets &arcSets) {
             }
         }
     }
+
+    std::cout << "[INFO] ODSets: " << n << " O-D pairs read from file " << filename << std::endl;
 }

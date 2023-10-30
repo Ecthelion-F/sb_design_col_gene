@@ -56,5 +56,7 @@ void LineSets::readLinesFromFile(const std::string &filename, ArcSets &arcSets) 
             setLinePass(line_id, arcSets.getArcId(start, end));
         }
     }
+
+    std::cout << "[INFO] LineSets: " << n << " lines read from file " << filename << std::endl;
 }
 

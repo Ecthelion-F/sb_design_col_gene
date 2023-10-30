@@ -79,6 +79,8 @@ int main(int argc, char *argv[])
     }
 }
 
+//    freopen("output.txt", "w", stdout);
+//    ios::sync_with_stdio(false);
 
     /*--------------------------------------------下面开始搭模型--------------------------------------------------------*/
     try{
@@ -92,15 +94,16 @@ int main(int argc, char *argv[])
             m.toCont();  // 需要对偶的时候用松弛模型
             m.setObjective(lineSets, odSets);
             m.addConstrains(arcSets, lineSets, odSets);
-            m.model.set(GRB_IntParam_OutputFlag, 0);
+//            m.model.set(GRB_IntParam_OutputFlag, 0);
             m.optimize();
+            m.model.computeIIS();
+            m.model.write("main.ilp");
+            cout << "------------------------ fuckme: x_l start ---------------" << endl << endl;
             vector< vector<double> > vet = m.getDualX(arcSets);
-            cout << "------------------------fuckme---------------" << endl << endl;
             vector<odp> new_line;
             int num_of_nodes = (int)vet.size();
             double ans = -INF;
             flag = false;
-
             // 在xl上找新最长路
             for (int i = 0; i < num_of_nodes; ++i){
                 for (int j = 0; j < num_of_nodes; ++j){
@@ -110,12 +113,12 @@ int main(int argc, char *argv[])
                     lm.setBias(0);
                     lm.buildModel();
                     double tmp = lm.solve();
-//                    lm.printResult();
                     if(tmp > ans && tmp > 0){
                         ans = tmp;
                         new_line = lm.getResult();
                         flag = true;
                         lm.printResult();
+                        cout << tmp;
                     }
                 }
             }
@@ -134,7 +137,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        cout << "--------------------fuckme--------------------\n";
+        cout << "--------------------fuckme: z_k,l strat --------------------\n";
 
         // z_k,l部分的列生成
         while (true){
@@ -144,7 +147,7 @@ int main(int argc, char *argv[])
             m.toCont();  // 需要对偶的时候用松弛模型
             m.setObjective(lineSets, odSets);
             m.addConstrains(arcSets, lineSets, odSets);
-            m.model.set(GRB_IntParam_OutputFlag, 0);
+//            m.model.set(GRB_IntParam_OutputFlag, 0);
             m.optimize();
 
             vector<odp> new_line;
@@ -153,6 +156,7 @@ int main(int argc, char *argv[])
 
             // 在z_k上找最短路，遍历每个k给出一个最长的
             for (int k : odSets.getOds()){
+                cout << "k = " << k << " in z_k,l" << endl;
                 vector< vector<double> > vet = m.getDualZ(arcSets, odSets, k);
                 int num_of_nodes = (int)vet.size();
                 for (int i = 0; i < num_of_nodes; ++i){

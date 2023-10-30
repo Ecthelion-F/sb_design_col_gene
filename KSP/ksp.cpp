@@ -64,6 +64,7 @@ int main(){
         int start, end, demand;
         fin >> start >> end >> demand;
         out << start << " " << end << " " << demand <<  " ";
+        cout << "\n from " << start << " to " << end << endl;
 
         vector<vector<info>> ans = ksp(start, MAX_NODE_ID, path_num, OUTPUT_NO);
 
@@ -71,9 +72,10 @@ int main(){
         int real_path_num = 0;
         string str;
         for (auto j: ans[end]) {
+            if (real_path_num >= path_num) break;
             info k = j;
             while (k.v != start) {
-                if ((!path.empty()) && (k.v == i)) {
+                if ((!path.empty()) && (k.v == end)) {
                     cout << "loop" << endl;
                     while (!path.empty()) path.pop();
                     break;
@@ -81,7 +83,7 @@ int main(){
                 path.push(k.v);
                 k = ans[k.pre_v][k.pre_k];
             }
-            if (!path.empty()) {
+            if ((!path.empty()) && (real_path_num < path_num)) {
                 str += to_string(path.size()) + "\n";
                 real_path_num++;
                 int now = start, next;
@@ -95,7 +97,7 @@ int main(){
                 cout << endl;
             }
         }
-        out << real_path_num << endl << str;
+        out << real_path_num << endl << str << endl;
 
     }
 
@@ -111,12 +113,12 @@ vector<vector<info>> ksp(const int s, const int MAX_NODE_ID, const int path_num,
     while(!q.empty()){
         info e = q.top();
         q.pop();
-        if(dist[e.v].size() >= path_num) continue;
+        if (dist[e.v].size() >= path_num*5) continue;
 
         dist[e.v].push_back(e);
 
         for(auto i : map[e.v]){
-            q.emplace(i.v, e.dis + i.dis, e.v, dist[e.v].size() - 1);
+            if (i.v != s) q.emplace(i.v, e.dis + i.dis, e.v, dist[e.v].size() - 1);
         }
     }
 
