@@ -96,8 +96,8 @@ int main(int argc, char *argv[])
             m.addConstrains(arcSets, lineSets, odSets);
 //            m.model.set(GRB_IntParam_OutputFlag, 0);
             m.optimize();
-            m.model.computeIIS();
-            m.model.write("main.ilp");
+//            m.model.computeIIS();
+//            m.model.write("main.ilp");
             cout << "------------------------ fuckme: x_l start ---------------" << endl << endl;
             vector< vector<double> > vet = m.getDualX(arcSets);
             vector<odp> new_line;

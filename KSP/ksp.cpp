@@ -37,8 +37,9 @@ public:
 };
 
 vector<edge> map[MAX_N];
+vector<edge> metro_map[MAX_N];
 
-vector<vector<info>> ksp(int start, int MAX_NODE_ID, int path_num, bool OUTPUT_FLAG = true);
+vector<vector<info>> ksp(int start, int MAX_NODE_ID, int path_num, bool OUTPUT_FLAG, vector<edge> map_used[]);
 
 int main(){
 
@@ -49,7 +50,12 @@ int main(){
         int start, end, max_freq, type;
         double dis, velocity;
         fin >> start >> end >> dis >> max_freq >> velocity >> type;
-        map[start].emplace_back(end, dis / velocity);
+
+//        看我给每段公交都加两分钟惩罚你们一个个的还全都跑公交吗
+        if (type == 1) map[start].emplace_back(end, dis / velocity + 2);
+        else map[start].emplace_back(end, dis / velocity);
+
+        if (type == 0) metro_map[start].emplace_back(end, dis / velocity);
 
         if (start > MAX_NODE_ID) MAX_NODE_ID = start;
         if (end > MAX_NODE_ID) MAX_NODE_ID = end;
@@ -66,7 +72,8 @@ int main(){
         out << start << " " << end << " " << demand <<  " ";
         cout << "\n from " << start << " to " << end << endl;
 
-        vector<vector<info>> ans = ksp(start, MAX_NODE_ID, path_num, OUTPUT_NO);
+        vector<vector<info>> ans = ksp(start, MAX_NODE_ID, path_num, OUTPUT_NO, map);
+        vector<vector<info>> ans_metro = ksp(start, MAX_NODE_ID, path_num, OUTPUT_NO, metro_map);
 
         stack<int> path;
         int real_path_num = 0;
@@ -97,6 +104,33 @@ int main(){
                 cout << endl;
             }
         }
+
+        while (!path.empty()) path.pop();
+        if (!ans_metro[end].empty()) {
+            info k = ans_metro[end][0];
+            while (k.v != start) {
+                if ((!path.empty()) && (k.v == end)) {
+                    cout << "loop" << endl;
+                    while (!path.empty()) path.pop();
+                    break;
+                }
+                path.push(k.v);
+                k = ans_metro[k.pre_v][k.pre_k];
+            }
+            if (!path.empty()) {
+                real_path_num++;
+                str += to_string(path.size()) + "\n";
+                int now = start, next;
+                while (!path.empty()) {
+                    next = path.top();
+                    cout << now << " -> " << next << " ";
+                    str += to_string(now) + " " + to_string(next) + "\n";
+                    now = next;
+                    path.pop();
+                }
+            }
+
+        }
         out << real_path_num << endl << str << endl;
 
     }
@@ -105,7 +139,7 @@ int main(){
 }
 
 
-vector<vector<info>> ksp(const int s, const int MAX_NODE_ID, const int path_num, bool OUTPUT_FLAG){
+vector<vector<info>> ksp(const int s, const int MAX_NODE_ID, const int path_num, bool OUTPUT_FLAG, vector<edge> map_used[]){
     priority_queue<info> q;
     vector<vector<info> > dist(MAX_NODE_ID + 1);
 
@@ -117,7 +151,7 @@ vector<vector<info>> ksp(const int s, const int MAX_NODE_ID, const int path_num,
 
         dist[e.v].push_back(e);
 
-        for(auto i : map[e.v]){
+        for(auto i : map_used[e.v]){
             if (i.v != s) q.emplace(i.v, e.dis + i.dis, e.v, dist[e.v].size() - 1);
         }
     }
