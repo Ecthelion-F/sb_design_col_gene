@@ -16,7 +16,7 @@ typedef std::pair<int, int> pii;
 
 const double phi1 = 0.13, phi2 = 0.145, phi3 = 0.725;
 const double lambda = 80;
-const double alpha = 90.0;
+const double alpha = 0.09; //90块一公里的车车好像也不是很过分？
 
 #define MAX_OD_PAIRS 160
 #define MAX_PATH_NUM 5

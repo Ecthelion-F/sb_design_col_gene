@@ -138,11 +138,11 @@ int main(int argc, char *argv[])
         }
 
         cout << "--------------------fuckme: z_k,l strat --------------------\n";
-
+        int fffffffffffffff = 0;
         // z_k,l部分的列生成
         while (true){
             // 造RMP
-            MainModel m = MainModel();
+            MainModel m = *new MainModel();
             m.addVars(lineSets, odSets);
             m.toCont();  // 需要对偶的时候用松弛模型
             m.setObjective(lineSets, odSets);
@@ -159,22 +159,26 @@ int main(int argc, char *argv[])
                 cout << "k = " << k << " in z_k,l" << endl;
                 vector< vector<double> > vet = m.getDualZ(arcSets, odSets, k);
                 int num_of_nodes = (int)vet.size();
-                for (int i = 0; i < num_of_nodes; ++i){
-                    for (int j = 0; j < num_of_nodes; ++j){
-                        if (i == j) continue;
-                        LppModel lm = LppModel(vet, 5);
-                        lm.setOrigin(i);  lm.setDestination(j);
-                        lm.setBias(phi3 * odSets.getDemand(k)); // 最后要-phi_3 * q_k
-                        lm.buildModel();
-                        double tmp = lm.solve();
-                        if(tmp > ans && tmp > 0){
-                            ans = tmp;
-                            new_line = lm.getResult();
-                            flag = true;
-                            lm.printResult();
-                        }
+                for (int fuckme : odSets.getOds()) { //试一下只找起终点是OD的里面的最长路往结果里加
+                    int i = odSets.origin[fuckme], j = odSets.destination[fuckme];
+//                for (int i = 0; i < num_of_nodes; ++i){
+//                    for (int j = 0; j < num_of_nodes; ++j){
+//                        if (i == j) continue;
+                    LppModel lm = LppModel(vet, 10);
+                    lm.setOrigin(i);
+                    lm.setDestination(j);
+                    lm.setBias(phi3 * odSets.getDemand(k)); // 最后要-phi_3 * q_k
+                    lm.buildModel();
+                    double tmp = lm.solve();
+                    if (tmp > ans && tmp > 0) {
+                        ans = tmp;
+                        new_line = lm.getResult();
+                        flag = true;
+                        lm.printResult();
                     }
                 }
+//                    }
+//                }
             }
 
             if (!flag) break; // 没找到大于0的最长路直接完蛋

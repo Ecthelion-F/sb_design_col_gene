@@ -62,6 +62,8 @@ int main(){
     }
     fin.close();
 
+    metro_map[0].emplace_back(1, 2); // tmp:只针对特例
+
     ofstream out("odSetsSetting.out");
     fin.open("odLists.in");
     fin >> n >> path_num;
@@ -69,7 +71,7 @@ int main(){
     for(int i = 0; i < n; ++i){
         int start, end, demand;
         fin >> start >> end >> demand;
-        out << start << " " << end << " " << demand <<  " ";
+        out << start << " " << end << " " << demand / 24 + 1 <<  " "; //需求量调到人数/小时才比较对.....
         cout << "\n from " << start << " to " << end << endl;
 
         vector<vector<info>> ans = ksp(start, MAX_NODE_ID, path_num, OUTPUT_NO, map);

@@ -12,12 +12,12 @@
 class ODSets {
 private:
     std::vector<int> id, demand;
-    std::vector<int> origin, destination;
     std::vector<int> num_of_paths;
 
     bool path_pass_arc[MAX_OD_PAIRS][MAX_PATH_NUM][MAX_ARC_NUM]{};
 
 public:
+    std::vector<int> origin, destination; // 方便外面一些地方抓数据
     ODSets();
 
     std::vector<std::vector<double> > ckp;

@@ -201,19 +201,23 @@ vector<vector<double> > MainModel::getDualZ(ArcSets &arcSets, ODSets &odSets, in
     return vet;
 }
 
+// 只输出大于零的决策变量值
 void MainModel::printResult(LineSets &lineSets, ODSets &odSets) {
     cout << "Obj: " << model.get(GRB_DoubleAttr_ObjVal) << endl;
     for (int i : lineSets.getBusLines()){
-        cout << "x_" << i << " = " << x[i].get(GRB_DoubleAttr_X) << endl;
+        double ans = x[i].get(GRB_DoubleAttr_X);
+        if (ans > 0) cout << "x_" << i << " = " << x[i].get(GRB_DoubleAttr_X) << endl;
     }
     for (int k : odSets.getOds()){
         for (int p = 0; p < odSets.getPathNums(k); ++p){
-            cout << "y_" << k << "_" << p << " = " << y[pii(k, p)].get(GRB_DoubleAttr_X) << endl;
+            double ans = y[pii(k, p)].get(GRB_DoubleAttr_X);
+            if (ans > 0) cout << "y_" << k << "_" << p << " = " << y[pii(k, p)].get(GRB_DoubleAttr_X) << endl;
         }
     }
     for (int k : odSets.getOds()){
         for (int l : lineSets.getLines()){
-            cout << "z_" << k << "_" << l << " = " << z[pii(k, l)].get(GRB_DoubleAttr_X) << endl;
+            double ans = z[pii(k, l)].get(GRB_DoubleAttr_X);
+            if (ans > 0) cout << "z_" << k << "_" << l << " = " << z[pii(k, l)].get(GRB_DoubleAttr_X) << endl;
         }
     }
 
